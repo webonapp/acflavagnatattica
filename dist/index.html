@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Lavagna tattica con moduli preimpostati e maglie trascinabili.">
+<title>Lavagna tattica</title>
+<link rel="icon" type="image/png" href="fiorentina.png">
+<link rel="stylesheet" href="style.css?v=20261116-16">
+<script>window.__SITE_BOOTSTRAP__ = null;</script>
+<script src="board.js?v=20261116-15" defer></script>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><img class="mark" src="fiorentina.png" alt="ACF Fiorentina" width="36" height="36"><strong>Lavagna tattica</strong></div>
+  <nav aria-label="Sezioni">
+    <button id="board-tab" class="tab active" aria-current="page" data-icon="pitch">Lavagna</button>
+    <button id="archive-tab" class="tab" data-icon="archive">Archivio</button>
+    <button id="users-tab" class="tab" data-icon="person" hidden>Utenti</button>
+  </nav>
+  <div class="account-bar"><span id="account-name"></span><button id="logout" class="button" type="button">Esci</button></div>
+</header>
+<main>
+  <section id="workspace">
+    <div class="layout">
+      <section class="panel board" aria-label="Campi e strumenti">
+        <div class="toolbar">
+          <div class="tools" aria-label="Strumenti">
+            <button data-tool="move" data-icon="move" title="Sposta maglie (V)">Sposta</button>
+            <button data-tool="arrow" data-icon="arrow" title="Disegna una freccia (A)">Freccia</button>
+            <button data-tool="curve" data-icon="curve" title="Disegna una freccia curva (C). Tieni premuto Maiusc per invertire la curva.">Freccia curva</button>
+            <button data-tool="ball" title="Aggiungi o sposta il pallone (B)"><img id="ball-icon" src="pallone.png" alt="" width="16" height="16">Palla</button>
+            <button data-tool="text" data-icon="text" title="Inserisci testo sul campo (T)">Testo</button>
+            <button data-tool="eraser" data-icon="eraser" title="Cancella una freccia o il pallone (E)">Gomma</button>
+          </div>
+          <div class="tools board-actions">
+            <button id="undo" class="icon-only" data-icon="undo" title="Annulla" aria-label="Annulla"></button>
+          </div>
+        </div>
+        <div id="curve-options" class="curve-options" hidden>
+          <label for="curve-height">Altezza curva</label>
+          <input id="curve-height" type="range" min="10" max="100" value="50">
+          <output id="height-value" for="curve-height">50%</output>
+          <label class="switch-row"><span>Traiettoria aerea</span><input id="curve-aerial" type="checkbox" role="switch"></label>
+        </div>
+        <div id="pitch-help" hidden>Trascina da uno spazio libero per selezionare più elementi. Il doppio clic modifica una maglia o un testo. Premi Invio per selezionare una maglia, le frecce per spostare la selezione e Canc per eliminarla.</div>
+        <div class="pitches">
+          <section class="pitch-panel" aria-labelledby="possession-heading">
+            <section class="panel notes schema-banner" aria-label="Schema Campo 1">
+              <h2>Schema</h2>
+              <div class="title-field"><label for="title-home">Titolo</label><input id="title-home" maxlength="90" placeholder="Es. Prima pressione"></div>
+              <div class="notes-field"><label for="notes-home">Note tattiche</label><textarea id="notes-home" rows="1" placeholder="Aggiungi un’indicazione…"></textarea></div>
+              <button id="new-home" class="button" data-icon="plus">Nuovo schema</button>
+            </section>
+            <div class="pitch-heading"><h3 id="possession-heading">Campo 1</h3><div class="pitch-actions"><button id="fullscreen-home" class="button" data-icon="expand">Schermo intero</button><button id="view-home" class="button" data-icon="layers" title="Cambia prospettiva del Campo 1">Prospettiva</button><button id="export-possession" class="button" data-icon="download">Esporta PNG</button><button id="save-possession" class="button primary" data-icon="save">Salva schema</button></div></div>
+            <div class="pitch-teams">
+              <label for="home"><span class="dot home"></span>Fiorentina</label><select id="home"></select>
+              <label for="away"><span class="dot away"></span>Avversari</label><select id="away"></select>
+              <div class="formation-actions"><button id="insert-home" class="button primary">Inserisci</button><button id="reset-home" class="button">Reset</button></div>
+              <label class="switch-row"><span>Mostra avversari</span><input id="show-away" type="checkbox" role="switch"></label>
+            </div>
+            <div class="stage">
+              <img class="pitch-crest" src="fiorentina.png" alt="" width="64" height="64">
+              <canvas id="pitch" width="1100" height="780" tabindex="0" aria-labelledby="possession-heading" aria-describedby="pitch-help"></canvas>
+            </div>
+          </section>
+          <section class="pitch-panel" aria-labelledby="out-of-possession-heading">
+            <section class="panel notes schema-banner" aria-label="Schema Campo 2">
+              <h2>Schema</h2>
+              <div class="title-field"><label for="title-away">Titolo</label><input id="title-away" maxlength="90" placeholder="Es. Blocco medio"></div>
+              <div class="notes-field"><label for="notes-away">Note tattiche</label><textarea id="notes-away" rows="1" placeholder="Aggiungi un’indicazione…"></textarea></div>
+              <button id="new-away" class="button" data-icon="plus">Nuovo schema</button>
+            </section>
+            <div class="pitch-heading"><h3 id="out-of-possession-heading">Campo 2</h3><div class="pitch-actions"><button id="fullscreen-away" class="button" data-icon="expand">Schermo intero</button><button id="view-away" class="button" data-icon="layers" title="Cambia prospettiva del Campo 2">Prospettiva</button><button id="export-out" class="button" data-icon="download">Esporta PNG</button><button id="save-out" class="button primary" data-icon="save">Salva schema</button></div></div>
+            <div class="pitch-teams">
+              <label for="home-out"><span class="dot home"></span>Fiorentina</label><select id="home-out"></select>
+              <label for="away-out"><span class="dot away"></span>Avversari</label><select id="away-out"></select>
+              <div class="formation-actions"><button id="insert-away" class="button primary">Inserisci</button><button id="reset-away" class="button">Reset</button></div>
+              <label class="switch-row"><span>Mostra avversari</span><input id="show-away-out" type="checkbox" role="switch"></label>
+            </div>
+            <div class="stage">
+              <img class="pitch-crest" src="fiorentina.png" alt="" width="64" height="64">
+              <canvas id="pitch-out" width="1100" height="780" tabindex="0" aria-labelledby="out-of-possession-heading" aria-describedby="pitch-help"></canvas>
+            </div>
+          </section>
+        </div>
+        <div class="board-footer">
+          <div class="add-players" role="group" aria-label="Aggiungi giocatori">
+            <button id="add-home" class="button" data-icon="plus" aria-label="Aggiungi giocatore alla tua squadra"><i class="dot home"></i>Aggiungi alla tua squadra</button>
+            <button id="add-away" class="button" data-icon="plus" aria-label="Aggiungi giocatore agli avversari"><i class="dot away"></i>Aggiungi agli avversari</button>
+            <label class="switch-row role-selection-switch"><span>Mostra ruolo</span><input id="selected-player-roles" type="checkbox" disabled></label>
+          </div>
+          <div class="role-switches" role="group" aria-label="Mostra i ruoli">
+            <label class="switch-row"><span>Ruoli · Campo 1</span><input id="roles-home" type="checkbox"></label>
+            <label class="switch-row"><span>Ruoli · Campo 2</span><input id="roles-away" type="checkbox"></label>
+          </div>
+        </div>
+      </section>
+    </div>
+  </section>
+  <section id="users" hidden>
+    <div class="heading"><div><h1>Gestione utenti</h1><p>Crea account, gestisci i privilegi, reimposta password e sospendi o riattiva l’accesso. Gli archivi restano conservati.</p></div></div>
+    <section class="panel users-panel">
+      <h2>Nuovo utente</h2>
+      <form id="user-create-form" class="user-create-form">
+        <label for="new-username">Nome utente</label><input id="new-username" minlength="2" maxlength="32" autocomplete="off" required placeholder="es. allenatore">
+        <label for="new-user-password">Password iniziale</label><input id="new-user-password" type="password" minlength="8" maxlength="128" autocomplete="new-password" required>
+        <button class="button primary" type="submit">Crea account</button>
+      </form>
+      <p id="users-status" class="users-status" role="status"></p>
+      <h2>Account</h2>
+      <div id="users-list" class="users-list" aria-live="polite"></div>
+    </section>
+  </section>
+  <section id="archive" hidden>
+    <div class="heading"><div><h1>Archivio schemi</h1><p>Riapri e organizza gli schemi salvati.</p></div><div class="archive-actions"><button id="create-folder" class="button" data-icon="plus">Nuova cartella</button><button id="create-subfolder" class="button" data-icon="plus">Nuova sottocartella</button><button id="archive-new" class="button primary" data-icon="plus">Nuovo schema</button></div></div>
+    <section id="admin-archive-controls" class="panel admin-archive-controls" hidden><label for="admin-archive-user">Archivio da visualizzare</label><select id="admin-archive-user"></select></section>
+    <section class="panel archive-search" aria-label="Cerca schemi"><label for="archive-search-name">Nome schema</label><input id="archive-search-name" type="search" placeholder="Cerca per nome…"><label for="archive-search-home">Modulo Fiorentina</label><select id="archive-search-home"><option value="">Tutti i moduli</option></select><label for="archive-search-away">Modulo avversari</label><select id="archive-search-away"><option value="">Tutti i moduli</option></select></section>
+    <div id="archive-breadcrumbs" class="archive-breadcrumbs" aria-label="Percorso cartelle"></div>
+    <div class="archive-layout"><nav id="archive-folders" class="panel archive-folders" aria-label="Cartelle"></nav><div id="saved-list" class="saved-list"></div></div>
+  </section>
+</main>
+<footer class="site-credits">Lavagna tattica <span aria-hidden="true">·</span> Realizzata da Andrea Tordi</footer>
+<dialog id="roles-scope-dialog" aria-labelledby="roles-scope-title">
+  <section class="roles-scope">
+    <h2 id="roles-scope-title">Nascondere i ruoli</h2>
+    <p id="roles-scope-description">Scegli a chi nascondere i ruoli.</p>
+    <div class="roles-scope-options">
+      <button id="hide-roles-all" class="button primary" type="button">A tutti</button>
+      <button id="hide-roles-home" class="button" type="button">Alla Fiorentina</button>
+      <button id="hide-roles-away" class="button" type="button">Agli avversari</button>
+    </div>
+    <div class="dialog-actions"><button id="cancel-roles-scope" class="button" type="button">Annulla</button></div>
+  </section>
+</dialog>
+<dialog id="player-editor" aria-labelledby="player-editor-title">
+  <form class="player-form">
+    <h2 id="player-editor-title">Modifica maglia</h2>
+    <div>
+      <label for="player-name">Nome</label>
+      <input id="player-name" maxlength="28" autofocus>
+    </div>
+    <div>
+      <label for="player-role">Ruolo</label>
+      <input id="player-role" maxlength="22">
+    </div>
+    <div class="dialog-actions player-editor-actions">
+      <label class="switch-row"><span>Mostra ruolo</span><input id="player-show-role" type="checkbox"></label>
+      <div><button id="cancel-player-edit" type="button" class="button">Annulla</button>
+      <button type="submit" class="button primary">Salva</button></div>
+    </div>
+  </form>
+</dialog>
+<dialog id="text-editor" aria-labelledby="text-editor-title">
+  <form class="player-form">
+    <h2 id="text-editor-title">Testo sul campo</h2>
+    <div>
+      <label for="pitch-text">Testo</label>
+      <textarea id="pitch-text" rows="3" maxlength="160" required autofocus></textarea>
+    </div>
+    <div class="text-style-controls">
+      <label class="text-background-option"><input id="pitch-text-background" type="checkbox">Sfondo</label>
+      <label for="pitch-text-color">Colore del testo</label>
+      <input id="pitch-text-color" type="color" value="#fffdf8">
+    </div>
+    <div class="dialog-actions">
+      <button id="cancel-text-edit" type="button" class="button">Annulla</button>
+      <button type="submit" class="button primary">Salva</button>
+    </div>
+  </form>
+</dialog>
+<dialog id="user-password-dialog" aria-labelledby="user-password-title">
+  <form id="user-password-form" class="player-form">
+    <h2 id="user-password-title">Reimposta password</h2>
+    <p id="user-password-name" class="user-password-name"></p>
+    <label for="reset-user-password">Nuova password</label>
+    <input id="reset-user-password" type="password" minlength="8" maxlength="128" autocomplete="new-password" required>
+    <div class="dialog-actions"><button id="cancel-user-password" type="button" class="button">Annulla</button><button type="submit" class="button primary">Salva password</button></div>
+  </form>
+</dialog>
+<div id="status" class="status" role="status" hidden></div>
+</body>
+</html>

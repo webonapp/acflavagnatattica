@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS archives (
+  username TEXT PRIMARY KEY NOT NULL,
+  payload TEXT NOT NULL,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS login_attempts (
+  ip_key TEXT PRIMARY KEY NOT NULL,
+  attempts INTEGER NOT NULL,
+  window_started INTEGER NOT NULL
+);
